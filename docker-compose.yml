@@ -1,0 +1,39 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./:/app
+    depends_on:
+      - api
+  worker:
+    build: ./backend
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+    env_file: ./backend/.env
+    depends_on: [redis, postgres]
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: skill2hire
+      POSTGRES_USER: skill2hire
+      POSTGRES_PASSWORD: change-me-local-only
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+  redis:
+    image: redis:7-alpine
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    ports: ["9090:9090"]
+    volumes: ["./ops/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+volumes:
+  postgres-data:
