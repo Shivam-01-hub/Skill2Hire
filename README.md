@@ -47,3 +47,4 @@ docker compose up --build
 The frontend login screen uses `VITE_API_URL` and also provides an explicit demo workspace for offline UI review. See [docs/architecture.md](docs/architecture.md) for the production AI, data and security boundaries.
 "refresh" 
 "update" 
+" " 
